@@ -9,6 +9,10 @@ zero-setup local runs) · JWT auth · Recharts · React Hook Form.
 
 ---
 
+**Live demo:** https://quiz-management-platform-ten.vercel.app
+*First load may take up to a minute if the backend has been idle.*
+
+
 ## 1. Run it locally
 
 ### Backend

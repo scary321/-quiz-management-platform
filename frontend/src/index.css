@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply bg-paper text-ink font-sans;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-mark ring-offset-2 ring-offset-white;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white border border-rule rounded-card shadow-card;
+  }
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint;
+  }
+  .h1 {
+    @apply font-display text-2xl font-semibold tracking-tight sm:text-[28px];
+  }
+  .h2 {
+    @apply font-display text-lg font-semibold tracking-tight;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-[8px] px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-mark text-white hover:bg-mark-dark;
+  }
+  .btn-ghost {
+    @apply btn border border-rule bg-white text-ink hover:border-ink-faint;
+  }
+  .btn-danger {
+    @apply btn border border-fail/30 bg-fail-wash text-fail hover:bg-fail hover:text-white;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-[13px];
+  }
+  .input {
+    @apply w-full rounded-[8px] border border-rule bg-white px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-mark focus:outline-none focus:ring-1 focus:ring-mark;
+  }
+  .label {
+    @apply mb-1.5 block font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.1em];
+  }
+  .th {
+    @apply px-4 py-3 text-left font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint;
+  }
+  .td {
+    @apply px-4 py-3 text-sm text-ink-soft;
+  }
+  .nav-link {
+    @apply flex items-center gap-3 rounded-[8px] px-3 py-2 text-sm text-ink-soft transition hover:bg-paper hover:text-ink;
+  }
+  .nav-link-active {
+    @apply bg-ink text-white hover:bg-ink hover:text-white;
+  }
+}

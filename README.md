@@ -24,12 +24,18 @@ uvicorn app.main:app --reload --port 8000
 
 API docs: http://localhost:8000/docs
 
-By default the app uses SQLite (`quiz.db`) so it runs with nothing else installed. For
-PostgreSQL, start `docker compose up -d db` and set in `.env`:
+By default the app uses SQLite (quiz.db) so it runs with nothing else installed. For PostgreSQL, either of these works:
 
-```
+**Option A — Docker (fastest, if you have Docker Desktop):**
+
+docker compose up -d db This starts a container with user quiz, password quiz, database quizdb on localhost:5432 — matching the DATABASE_URL below exactly, no further setup needed.
+
+**Option B — a native PostgreSQL install:**
+
+1. Install PostgreSQL (postgresql.org/download) and set a superuser password during install.
+2. Open a SQL shell as the superuser (SQL Shell (psql) from the Start menu on Windows) and run: CREATE USER quiz WITH PASSWORD 'quiz'; CREATE DATABASE quizdb OWNER quiz; Either way, set in .env:
+
 DATABASE_URL=postgresql+psycopg2://quiz:quiz@localhost:5432/quizdb
-```
 
 ### Frontend
 
@@ -41,10 +47,10 @@ npm run dev          # http://localhost:5173, proxies /api to :8000
 
 ### Demo accounts
 
-| Role    | Email                     | Password      |
-| ------- | ------------------------- | ------------- |
-| Admin   | `admin@quizplatform.dev`  | `Admin@123`   |
-| Student | `rahul@student.dev`       | `Student@123` |
+| Role    | Email                    | Password      |
+| ------- | ------------------------ | ------------- |
+| Admin   | `admin@quizplatform.dev` | `Admin@123`   |
+| Student | `rahul@student.dev`      | `Student@123` |
 
 Any seeded first name works as a student login (`priya@student.dev`, `amit@student.dev`, …).
 `meera@student.dev` is deliberately deactivated so you can see the blocked-login path.
@@ -142,51 +148,51 @@ quiz-platform/
 
 ## 5. API reference
 
-| Method | Endpoint | Access |
-| --- | --- | --- |
-| POST | `/api/auth/register` | public |
-| POST | `/api/auth/login` | public |
-| POST | `/api/auth/logout` | any |
-| GET | `/api/auth/me` | any |
-| POST | `/api/auth/forgot-password` | public |
-| POST | `/api/auth/reset-password` | public |
-| GET | `/api/users` · `/api/users/{id}` · `/api/users/{id}/attempts` | admin |
-| PATCH | `/api/users/{id}/status` | admin |
-| DELETE | `/api/users/{id}` | admin |
-| GET | `/api/categories` | any |
-| POST / PUT / DELETE | `/api/categories[/{id}]` | admin |
-| GET | `/api/quizzes` · `/api/quizzes/{id}` | any (students see published only) |
-| POST / PUT / DELETE | `/api/quizzes[/{id}]` | admin |
-| PATCH | `/api/quizzes/{id}/publish` | admin |
-| GET / POST | `/api/quizzes/{id}/questions` | admin |
-| PUT / DELETE | `/api/questions/{id}` | admin |
-| POST | `/api/quizzes/{id}/start` | student |
-| GET | `/api/attempts/{id}/session` | student (own) |
-| PATCH | `/api/attempts/{id}/answer` | student (own) |
-| POST | `/api/quizzes/{id}/submit` | student |
-| GET | `/api/attempts` | student |
-| GET | `/api/attempts/{id}` | student (own) or admin |
-| GET | `/api/admin/stats` · `/api/admin/analytics` · `/api/admin/attempts` | admin |
-| GET | `/api/student/stats` | student |
-| GET | `/api/leaderboard` | any |
+| Method              | Endpoint                                                            | Access                            |
+| ------------------- | ------------------------------------------------------------------- | --------------------------------- |
+| POST                | `/api/auth/register`                                                | public                            |
+| POST                | `/api/auth/login`                                                   | public                            |
+| POST                | `/api/auth/logout`                                                  | any                               |
+| GET                 | `/api/auth/me`                                                      | any                               |
+| POST                | `/api/auth/forgot-password`                                         | public                            |
+| POST                | `/api/auth/reset-password`                                          | public                            |
+| GET                 | `/api/users` · `/api/users/{id}` · `/api/users/{id}/attempts`       | admin                             |
+| PATCH               | `/api/users/{id}/status`                                            | admin                             |
+| DELETE              | `/api/users/{id}`                                                   | admin                             |
+| GET                 | `/api/categories`                                                   | any                               |
+| POST / PUT / DELETE | `/api/categories[/{id}]`                                            | admin                             |
+| GET                 | `/api/quizzes` · `/api/quizzes/{id}`                                | any (students see published only) |
+| POST / PUT / DELETE | `/api/quizzes[/{id}]`                                               | admin                             |
+| PATCH               | `/api/quizzes/{id}/publish`                                         | admin                             |
+| GET / POST          | `/api/quizzes/{id}/questions`                                       | admin                             |
+| PUT / DELETE        | `/api/questions/{id}`                                               | admin                             |
+| POST                | `/api/quizzes/{id}/start`                                           | student                           |
+| GET                 | `/api/attempts/{id}/session`                                        | student (own)                     |
+| PATCH               | `/api/attempts/{id}/answer`                                         | student (own)                     |
+| POST                | `/api/quizzes/{id}/submit`                                          | student                           |
+| GET                 | `/api/attempts`                                                     | student                           |
+| GET                 | `/api/attempts/{id}`                                                | student (own) or admin            |
+| GET                 | `/api/admin/stats` · `/api/admin/analytics` · `/api/admin/attempts` | admin                             |
+| GET                 | `/api/student/stats`                                                | student                           |
+| GET                 | `/api/leaderboard`                                                  | any                               |
 
 ---
 
 ## 6. Security checklist
 
-| Requirement | How it is handled |
-| --- | --- |
-| Password hashing | bcrypt with per-password salt |
-| Session security | JWT (HS256), expiry from `ACCESS_TOKEN_EXPIRE_MINUTES`, verified per request |
-| Role-based authorization | server-side dependencies; UI guards are convenience only |
-| Input validation | Pydantic models with length, range and email constraints |
-| SQL injection | SQLAlchemy parameterised queries throughout, no string-built SQL |
-| XSS | React escapes by default; no `dangerouslySetInnerHTML` anywhere |
-| CSRF | bearer tokens in headers, not cookies, so no cross-site form replay |
-| Rate limiting | login, register, forgot and reset routes |
-| Secure headers | `nosniff`, `DENY` framing, `no-referrer`, restrictive permissions policy |
-| Error handling | generic 500 body, full detail logged server-side only |
-| Secrets | `.env`, never committed; `.env.example` documents the keys |
+| Requirement              | How it is handled                                                            |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| Password hashing         | bcrypt with per-password salt                                                |
+| Session security         | JWT (HS256), expiry from `ACCESS_TOKEN_EXPIRE_MINUTES`, verified per request |
+| Role-based authorization | server-side dependencies; UI guards are convenience only                     |
+| Input validation         | Pydantic models with length, range and email constraints                     |
+| SQL injection            | SQLAlchemy parameterised queries throughout, no string-built SQL             |
+| XSS                      | React escapes by default; no `dangerouslySetInnerHTML` anywhere              |
+| CSRF                     | bearer tokens in headers, not cookies, so no cross-site form replay          |
+| Rate limiting            | login, register, forgot and reset routes                                     |
+| Secure headers           | `nosniff`, `DENY` framing, `no-referrer`, restrictive permissions policy     |
+| Error handling           | generic 500 body, full detail logged server-side only                        |
+| Secrets                  | `.env`, never committed; `.env.example` documents the keys                   |
 
 The frontend is trusted for nothing: correct answers, marks, roles, completion state and
 attempt eligibility are all decided server-side.
